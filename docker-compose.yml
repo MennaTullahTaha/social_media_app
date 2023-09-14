@@ -1,0 +1,39 @@
+# Define a config object for the services 
+# involved in this app such as DB.
+# Due to how docker objects are defined, 
+# improper indentation can cause the build
+# to fail.
+# volumes is used to say this is the directory where the host system shares the /app directory. 
+# Change build into ./app after creating the backend. 
+version: '3.7'
+services:
+  db:
+    image: neo4j:4.4.19
+    restart: always
+    hostname: neo4j
+    container_name: neo4j
+    ports:
+      - 7474:7474
+      - 7687:7687
+    volumes:
+      - ./neo4j/data:/data
+    environment:
+      - NEO4J_AUTH=neo4j/pleaseletmein
+      - NEO4JLABS_PLUGINS=["apoc", "graph-data-science"]
+      - NEO4J_dbms_memory_heap_initial__size=1G
+      - NEO4J_dbms_memory_heap_max__size=2G
+      - NEO4J_dbms_memory_pagecache_size=1G
+  app: 
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    ports: 
+      - "3000:3000"
+    volumes:
+      - .:/app
+    environment:
+      RAILS_ENV: development
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    platform: linux/arm64/v8
