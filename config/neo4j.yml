@@ -1,0 +1,5 @@
+development:
+url: neo4j://localhost:7687
+    username: neo4j
+    password: Neo5j
+    encryption: false
